@@ -1,6 +1,4 @@
 terraform {
-  required_version = ">= 1.9.0"
-
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -10,25 +8,26 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
-  subscription_id = var.subscription_id   # eller via ARM_SUBSCRIPTION_ID
-}
+  subscription_id = "7a3c6854-0fe1-42eb-b5b9-800af1e53d70"
+  features {
 
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 4.0"
-    }
   }
 }
 
-provider "azurerm" {
-  features {}
-  # subscription_id hentes fra ARM_SUBSCRIPTION_ID
+resource "azurerm_resource_group" "rg-sa-niti98" {
+  name     = "rg-demo-we-ga98"
+  location = "West Europe"
 }
 
-resource "azurerm_resource_group" "demo" {
-  name     = "rg-iac-demo"
-  location = "westeurope"
+
+resource "azurerm_storage_account" "rg-sa-niti98" {
+  name                     = "lade1998"
+  resource_group_name      = azurerm_resource_group.rg-sa-niti98.name
+  location                 = azurerm_resource_group.rg-sa-niti98.location
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+
+  tags = {
+    environment = "test"
+  }
 }
