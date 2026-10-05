@@ -1,0 +1,19 @@
+subscription_id = "7a3c6854-0fe1-42eb-b5b9-800af1e53d70" # bytt til faktisk ID
+environment     = "dev"
+location        = "westeurope"
+name_prefix     = "demo"
+
+vnet_cidr      = "10.10.0.0/16"
+subnet_cidr    = "10.10.1.0/24"
+allow_ssh_cidr = "x.x.x.x/32" # bytt til din IP for demo.
+
+vm_size        = "Standard_B1s"
+admin_username = "azureuser"
+ssh_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDVKnJsrdvtLzqKtB6CLSkzNFUbxqA58n4YxGBo8VBiU" # Her må du lime inn din egen public key fra ~/.ssh/id_rsa.pub
+
+allocate_public_ip = true
+
+tags = {
+  env   = "dev"
+  owner = "team-x"
+}

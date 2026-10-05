@@ -10,12 +10,6 @@ variable "rgname" {
   default     = "rg-demo-we-ga98"
 }
 
-variable "saname" {
-  type        = string
-  description = "Name of the storage account"
-
-}
-
 variable "student_id" {
   description = "Din unike student-ID. Brukes som prefiks i alle ressursnavn."
   type        = string
@@ -56,9 +50,26 @@ variable "nsg_rules" {
   ]
 }
 
-
-variable "admin_password" {
-  type      = string
-  sensitive = true
+variable "create_nsg" {
+  description = "Whether to create the network security group"
+  type        = bool
+  default     = true
 }
+
+variable "vnet_name" {
+  description = "Base name for the virtual network and related resources"
+  type        = string
+  default     = "vnet"
+}
+
+variable "subnets" {
+  description = "Subnet names and their address prefixes"
+  type        = map(string)
+  default = {
+    web = "10.0.1.0/24"
+    db  = "10.0.2.0/24"
+  }
+}
+
+
 
