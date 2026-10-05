@@ -19,7 +19,7 @@ variable "location" {
   description = "Azure-region. Bruk samme region som backenden."
   type        = string
   default     = "norwayeast"
- 
+
   validation {
     condition     = contains(["norwayeast", "westeurope", "northeurope", "uksouth"], var.location)
     error_message = "Regionen må være én av: norwayeast, westeurope, northeurope, uksouth (Azure Policy i fagets tenant)."
