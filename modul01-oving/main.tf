@@ -16,7 +16,7 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "rg-sa-niti98" {
   name     = "rg-demo-we-ga98"
-  location = "West Europe"
+  location = "westeurope"
 }
 
 
