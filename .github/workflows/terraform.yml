@@ -1,80 +1,28 @@
-name: terraform-modul7
+name: terraform-cd
 
 on:
   pull_request:
     branches: [main]
-    paths:
-      - 'modul7/**'
-      - '.github/workflows/terraform-modul7.yml'
   push:
     branches: [main]
-    paths:
-      - 'modul7/**'
-      - '.github/workflows/terraform-modul7.yml'
 
 permissions:
-  id-token: write        # OIDC mot Azure (modul 6)
+  id-token: write # OIDC mot Azure (øving 6)
   contents: read
-  pull-requests: write   # for å poste plan tilbake i PR-en
-
-concurrency:
-  group: terraform-modul7-${{ github.ref }}
-  cancel-in-progress: false      # en avbrutt apply etterlater en hengende state-lås
-
-defaults:
-  run:
-    working-directory: modul7    # her bor Terraform-rota
+  pull-requests: write # for å poste planen tilbake i PR-en
 
 env:
-  ARM_USE_OIDC:        "true"
-  ARM_CLIENT_ID:       ${{ secrets.AZURE_CLIENT_ID }}
-  ARM_TENANT_ID:       ${{ secrets.AZURE_TENANT_ID }}
-  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_USE_OIDC: "true"
+  ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+  ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
 jobs:
-  build:                       # kvalitetsporten – kjører alltid
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
       - run: terraform fmt -check -recursive
-      - run: terraform init -backend=false     # ingen state, ingen Azure-pålogging
+      - run: terraform init -backend=false
       - run: terraform validate
-
-  plan:                        # på pull request – forhåndsvisning, ingen endring
-    needs: build
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    environment: dev           # også her – ellers matcher ikke sub-claimet (modul 6)
-    steps:
-      - uses: actions/checkout@v4
-      - uses: Azure/login@v3.1.0
-        with:
-          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - uses: hashicorp/setup-terraform@v3
-      - run: |
-          terraform init \
-            -backend-config=backend.hcl \
-            -backend-config="key=modul7/dev/network.tfstate"
-      - run: terraform plan -var-file="dev.tfvars" -no-color
-
-  apply:                       # ved merge til main
-    needs: build
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    environment: dev           # GitHub Environment – kan kreve godkjenning
-    steps:
-      - uses: actions/checkout@v4
-      - uses: Azure/login@v3.1.0
-        with:
-          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - uses: hashicorp/setup-terraform@v3
-      - run: |
-          terraform init \
-            -backend-config=backend.hcl \
-            -backend-config="key=modul7/dev/network.tfstate"
-      - run: terraform apply -auto-approve -var-file="dev.tfvars"
