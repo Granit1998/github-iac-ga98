@@ -1,0 +1,25 @@
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+ 
+.terraform/
+.terraform.lock.hcl
+ 
+# MERK: backend.hcl er IKKE ignorert.
+#
+# Den inneholder navn på en ressursgruppe, en storage-konto og en container –
+# ikke hemmeligheter. Navn er ikke tilgang: uten en Entra-identitet med
+# Storage Blob Data Contributor kommer man ingen vei med dem. Det er nettopp
+# derfor use_azuread_auth = true står der, og ingen kontonøkkel.
+#
+# Filen er dessuten lik for alle miljøer, og hører hjemme i repoet slik at
+# init-kommandoen i modul 7 kan peke på den.
+ 
+# Miljøfilene inneholder bare kortnavn, prosjektnavn og region – ingen
+# hemmeligheter. De sjekkes inn med vilje, slik at pipelinen i modul 7 kan
+# bruke dem.
+#   dev.tfvars      ← sjekkes inn
+#   prod.tfvars     ← sjekkes inn
+ 
+*.tfplan
+crash.log

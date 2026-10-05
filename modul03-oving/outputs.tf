@@ -7,3 +7,8 @@ output "name_prefix" {
   description = "Navneprefikset alle ressursene dine deler"
   value       = local.name_prefix
 }
+
+output "vm_public_ip" {
+  description = "Offentlig IP-adresse til VM-en"
+  value       = azurerm_public_ip.pip.ip_address
+}

@@ -26,9 +26,8 @@ resource "azurerm_resource_group" "rg" {
 }
 
 
-resource "azurerm_network_security_group" "nsg" {
- 
-  name                = "${var.vnet_name}-${var.student_id}-nsg"
+resource "azurerm_network_security_group" "main" {
+  name                = "${local.name_prefix}-nsg"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -46,17 +45,10 @@ resource "azurerm_network_security_group" "nsg" {
       destination_address_prefix = "*"
     }
   }
-
-  tags = {
-    student = var.student_id
-    course  = "iac"
-  }
 }
 
-
-
 resource "azurerm_virtual_network" "vnet" {
-  name                = "${var.vnet_name}-${var.student_id}"
+  name                = "${local.name_prefix}-vnet"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   address_space       = ["10.0.0.0/16"]
@@ -69,7 +61,7 @@ resource "azurerm_virtual_network" "vnet" {
 
 resource "azurerm_subnet" "subnet" {
   for_each             = var.subnets
-  name                 = "subnet-${each.key}"
+  name                 = "${local.name_prefix}-snet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [each.value]
@@ -126,3 +118,12 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 }
+
+resource "azurerm_subnet" "extra" {
+  count                = 2
+  name                 = "subnet-${count.index}"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.${count.index + 10}.0/24"]
+}
+
