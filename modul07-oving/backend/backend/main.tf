@@ -24,7 +24,7 @@ data "azurerm_client_config" "current" {}
 resource "azurerm_resource_group" "backend" {
   name     = "rg-demo-backend-granit98"
   location = "westeurope"
-  tags = {
+  tags     = {
     keep = "true"
   }
 }

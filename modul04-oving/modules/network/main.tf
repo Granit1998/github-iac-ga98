@@ -15,6 +15,6 @@ resource "azurerm_subnet" "subnet" {
   name                 = "${var.name_prefix}-snet"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     =  var.subnet_address_prefix
+  address_prefixes     = var.subnet_address_prefix
 
 }
