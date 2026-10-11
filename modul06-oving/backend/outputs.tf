@@ -11,3 +11,7 @@ output "backend_hcl" {
     use_azuread_auth     = true
   EOT
 }
+
+output "rg_id" {
+  value = azurerm_resource_group.backend.id
+}

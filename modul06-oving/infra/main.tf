@@ -36,8 +36,8 @@ resource "azurerm_resource_group" "main" {
 module "network" {
   source = "../../modul04-oving/modules/network"
 
-  name_prefix        = "demo"
-  location           = var.location
+  name_prefix         = "demo"
+  location            = var.location
   resource_group_name = azurerm_resource_group.main.name
 
   tags = {
