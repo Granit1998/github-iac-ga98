@@ -23,7 +23,7 @@ variable "subnet_name" {
   type        = string
   description = "Navn på Subnet."
   default     = "snet-demo"
-} 
+}
 
 variable "name_prefix" {
   type        = string
@@ -31,10 +31,10 @@ variable "name_prefix" {
   default     = "demo"
 }
 
-variable "vnet_cidr"   { 
-  type = string
-  default = "10.10.0.0/16" 
-  }
+variable "vnet_cidr" {
+  type    = string
+  default = "10.10.0.0/16"
+}
 variable "subnet_cidr" {
   type    = string
   default = "10.10.1.0/24"

@@ -1,9 +1,9 @@
-variable "environment" { 
-  type = string
+variable "environment" {
+  type    = string
   default = "dev"
 }
-variable "location" { 
-  type = string
+variable "location" {
+  type    = string
   default = "westeurope"
 }
 

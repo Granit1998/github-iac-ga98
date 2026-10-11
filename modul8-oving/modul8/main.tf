@@ -1,13 +1,13 @@
 terraform {
   required_version = ">= 1.16.0"
- 
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 5.4"
     }
   }
- 
+
   # Tom med vilje, som i modul 6 og 7. Verdiene kommer fra kommandolinja:
   #
   #   terraform init -backend-config=backend.hcl \
@@ -17,14 +17,14 @@ terraform {
   # pipelinen i steg 7 er det altså den samme bloben – ikke to kopier.
   backend "azurerm" {}
 }
- 
+
 provider "azurerm" {
   features {}
 }
- 
+
 locals {
   name_prefix = "${var.kortnavn}-${var.project}"
- 
+
   common_tags = {
     owner      = var.kortnavn
     course     = "iac"
@@ -32,13 +32,13 @@ locals {
     managed_by = "pipeline"
   }
 }
- 
+
 resource "azurerm_resource_group" "main" {
   name     = "${local.name_prefix}-rg"
   location = var.location
   tags     = local.common_tags
 }
- 
+
 module "network" {
   # ---------------------------------------------------------------------------
   #  ENDRINGEN: fra disken til en tag
@@ -63,7 +63,7 @@ module "network" {
   #  terraform init hentet den nye taggen – init ser selv at kilden er endret.
   #  -upgrade trengtes ikke, og ville i tillegg skrevet om låsefila.
   source = "git::https://github.com/LearnIAC-TIM/iac-terraform.git//modules/network?ref=network-v1.1.0"
- 
+
   # Kontrakten er den samme som før. data_subnet_address_prefix sendes ikke
   # inn – den har en default i modulen, og det er hele grunnen til at
   # oppgraderingen bare var én linje.

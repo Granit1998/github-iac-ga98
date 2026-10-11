@@ -1,7 +1,7 @@
-variable "environment" { 
+variable "environment" {
   type = string
 }
-variable "location" { 
+variable "location" {
   type = string
 }
 
