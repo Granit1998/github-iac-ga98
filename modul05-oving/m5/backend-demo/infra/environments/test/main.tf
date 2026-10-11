@@ -24,12 +24,12 @@ resource "azurerm_resource_group" "rg" {
 }
 
 module "stack" {
-  source             = "../../stacks"
-  rg_name            = azurerm_resource_group.rg.name
-  location           = var.location
-  environment        = var.environment
-  name_prefix        = var.name_prefix
-  vnet_cidr          = var.vnet_cidr
-  subnet_cidr        = var.subnet_cidr
-  tags               = var.tags
+  source      = "../../stacks"
+  rg_name     = azurerm_resource_group.rg.name
+  location    = var.location
+  environment = var.environment
+  name_prefix = var.name_prefix
+  vnet_cidr   = var.vnet_cidr
+  subnet_cidr = var.subnet_cidr
+  tags        = var.tags
 }

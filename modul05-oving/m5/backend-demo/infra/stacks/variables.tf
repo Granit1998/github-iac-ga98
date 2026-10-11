@@ -3,18 +3,18 @@ variable "rg_name" {
   description = "Navn på Resource Group opprettet i miljøet."
 }
 
-variable "location"     { 
-  type = string 
-}
-
-variable "environment"  { 
-  type = string 
-}
-
-variable "name_prefix"  { 
+variable "location" {
   type = string
-  default = "tim" 
-  }
+}
+
+variable "environment" {
+  type = string
+}
+
+variable "name_prefix" {
+  type    = string
+  default = "tim"
+}
 
 variable "vnet_cidr" {
   type    = string
@@ -26,6 +26,6 @@ variable "subnet_cidr" {
 }
 
 variable "tags" {
-  type = map(string)
-  default = {} 
+  type    = map(string)
+  default = {}
 }
