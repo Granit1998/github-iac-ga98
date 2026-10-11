@@ -19,7 +19,7 @@ provider "azurerm" {
   # Ingen subscription_id her. Lokalt: az login. I workflowen: ARM_SUBSCRIPTION_ID.
 }
 
-resource "azurerm_resource_group" "demo" {
+resource "azurerm_resource_group" "main" {
   name     = var.rg_name
   location = var.location
 
@@ -29,5 +29,18 @@ resource "azurerm_resource_group" "demo" {
     # husk å skriv inn tags for å ta vare på Resource Group
     # keep : true
     # Hvis ikke slettes den av nattlig opprydding
+  }
+}
+
+
+module "network" {
+  source = "../../modul04-oving/modules/network"
+
+  name_prefix        = "demo"
+  location           = var.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  tags = {
+    miljo = "dev"
   }
 }
