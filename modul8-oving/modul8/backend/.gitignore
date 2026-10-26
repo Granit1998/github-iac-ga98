@@ -1,0 +1,17 @@
+# State – aldri i versjonskontroll
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+ 
+# Providere og moduler, lastet ned av init. Kan alltid hentes på nytt.
+.terraform/
+.terraform.lock.hcl
+ 
+# Dine verdier. .eksempel-fila sjekkes inn, denne ikke.
+terraform.tfvars
+ 
+# Planfiler kan inneholde hele den kommende staten, inkludert secrets.
+*.tfplan
+ 
+# Crash-logger fra Terraform kan inneholde variabelverdier.
+crash.log
