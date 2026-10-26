@@ -62,7 +62,7 @@ module "network" {
   #  Linja sto på network-v1.0.0 til steg 6. Da ble den flyttet hit, og vanlig
   #  terraform init hentet den nye taggen – init ser selv at kilden er endret.
   #  -upgrade trengtes ikke, og ville i tillegg skrevet om låsefila.
-  source = "git::https://github.com/LearnIAC-TIM/iac-terraform.git//modules/network?ref=network-v1.1.0"
+  source ="git::https://github.com/Granit1998/github-iac-ga98.git//modules/network?ref=network-v1.1.0"
 
   # Kontrakten er den samme som før. data_subnet_address_prefix sendes ikke
   # inn – den har en default i modulen, og det er hele grunnen til at

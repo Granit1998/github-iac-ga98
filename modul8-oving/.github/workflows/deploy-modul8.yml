@@ -48,12 +48,7 @@ env:
   TF_IN_AUTOMATION: "true"
  
 jobs:
-  # ===========================================================================
-  #  1. build – kvalitetsporten fra modul 7, uendret
-  # ===========================================================================
-  #  En tag kan settes på hvilken som helst commit, også en som aldri har vært
-  #  gjennom en pull request. Porten står derfor her også: ingenting rulles ut
-  #  før koden er formatert og validert.
+ 
   build:
     runs-on: ubuntu-latest
     steps:
@@ -107,8 +102,7 @@ jobs:
  
       - uses: hashicorp/setup-terraform@v3
  
-      # Den samme staten du kjørte plan mot lokalt i steg 4–6. Mappenavnet i
-      # key: modul8/dev/…, ikke dev/… og ikke modul7/dev/….
+      .
       - name: Init mot dev-staten
         run: |
           terraform init \
