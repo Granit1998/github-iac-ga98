@@ -1,119 +1,77 @@
 name: deploy-modul8
- 
+
 on:
-  # BARE TAGGER, OG BARE ÉN SERIE.
-  #
-  # En tag-push har ingen paths:-filter å henge seg på. GitHub ser ikke på
-  # hvilke filer en tag peker på, så prefikset ER filteret. Med tags: ['v*']
-  # ville hver v-tag i repoet startet en utrulling av modul8/.
-  #
-  # network-v1.0.0 og network-v1.1.0 matcher ikke mønsteret, og starter
-  # ingenting. De publiserer en modulversjon – de ruller ikke ut noe.
   push:
-    tags: ['modul8-v*']
- 
-# -----------------------------------------------------------------------------
-#  Én utrulling av gangen – mot modul8-staten
-# -----------------------------------------------------------------------------
-#  I terraform-modul7.yml sto github.ref i gruppenavnet. Der var ref-en en
-#  gren, og én gren peker på én state. Her er hver tag sin egen ref. Med
-#  github.ref i navnet ville modul8-v1.0.1 og modul8-v1.0.2, pushet rett etter
-#  hverandre, havnet i hver sin gruppe – og kjørt samtidig mot den samme
-#  bloben. Køen skal følge staten, ikke ref-en.
-#
-#  cancel-in-progress står på false av samme grunn som i modul 7: en apply som
-#  drepes midt i, etterlater en hengende lås.
-concurrency:
-  group: deploy-modul8
-  cancel-in-progress: false
- 
+    tags: ['modul8-v*']    # bare modul8-taggene starter en utrulling
+
 permissions:
-  # Retten til å be om et OIDC-token – uendret fra modul 7.
-  id-token: write
+  id-token: write          # OIDC mot Azure (modul 6)
   contents: read
-  # pull-requests: write er borte. Ingen jobb her kommenterer på noe.
- 
+
+concurrency:
+  group: deploy-modul8     # én utrulling av gangen mot modul8-staten
+  cancel-in-progress: false
+
 defaults:
   run:
-    # Samme mekanisme som i modul 7, ny mappe. Mappenavnet står nå her, i
-    # concurrency-gruppa og i key – og i tag-prefikset, som har tatt over
-    # jobben paths: hadde.
-    working-directory: modul8
- 
+    working-directory: modul8    # her bor Terraform-rota
+
 env:
-  ARM_USE_OIDC: "true"
-  ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-  ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+  ARM_USE_OIDC:        "true"
+  ARM_CLIENT_ID:       ${{ vars.AZURE_CLIENT_ID }}
+  ARM_TENANT_ID:       ${{ vars.AZURE_TENANT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-  TF_IN_AUTOMATION: "true"
- 
+
 jobs:
-  # ===========================================================================
-  #  1. build – kvalitetsporten fra modul 7, uendret
-  # ===========================================================================
-  #  En tag kan settes på hvilken som helst commit, også en som aldri har vært
-  #  gjennom en pull request. Porten står derfor her også: ingenting rulles ut
-  #  før koden er formatert og validert.
-  build:
+  build:                   # kvalitetsporten fra modul 7 – før noe rulles ut
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
- 
       - uses: hashicorp/setup-terraform@v3
- 
-      # Merk hva -recursive IKKE dekker lenger: modules/network/ ligger på
-      # rota, utenfor working-directory. Porten sjekker konsumenten, ikke
-      # produktet. Modul 9 gir produktet sin egen port.
-      - name: Formatering
-        run: terraform fmt -check -recursive
- 
-      # init laster ned modulen – fra GitHub, på taggen i ?ref. Det er derfor
-      # et privat repo stopper allerede HER, med "could not read Username for
-      # 'https://github.com'", og ikke først i deploy-dev.
-      - name: Init uten backend
-        run: terraform init -backend=false
- 
-      - name: Validering
-        run: terraform validate
- 
-  # ===========================================================================
-  #  2. deploy-dev – utrulling av den taggede commit-en
-  # ===========================================================================
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false
+      - run: terraform validate
+
   deploy-dev:
     needs: build
     runs-on: ubuntu-latest
- 
-    # Uendret fra modul 7: navnet bestemmer OIDC-subjectet, og det er det
-    # samme om jobben ble startet av en gren eller en tag:
-    #
-    #   repo:<org>/<repo>:environment:dev
-    #
-    # Ingen ny federated credential. MEN: har du begrenset dev-miljøet til
-    # bestemte grener (Deployment branches and tags), slipper ikke taggen
-    # gjennom. Legg til en regel for modul8-v*.
     environment: dev
- 
     steps:
-      # Sjekker ut commit-en taggen peker på – ikke main slik den ser ut nå.
-      # Det er dette som gjør en tag til en utgivelse: samme tag gir samme kode
-      # i morgen og om et halvt år.
-      - uses: actions/checkout@v4
- 
+      - uses: actions/checkout@v4          # samme tagget kode for ALLE miljøer
       - uses: Azure/login@v3.1.0
         with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          client-id:       ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id:       ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
- 
       - uses: hashicorp/setup-terraform@v3
- 
-      # Den samme staten du kjørte plan mot lokalt i steg 4–6. Mappenavnet i
-      # key: modul8/dev/…, ikke dev/… og ikke modul7/dev/….
-      - name: Init mot dev-staten
-        run: |
+      - run: |
           terraform init \
             -backend-config=backend.hcl \
             -backend-config="key=modul8/dev/network.tfstate"
- 
-      - name: Apply
-        run: terraform apply -auto-approve -var-file="dev.tfvars"
+      - run: terraform apply -auto-approve -var-file="dev.tfvars"
+
+  deploy-test:
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    environment: test        # kan kreve godkjenning før den kjører
+    steps:
+      - uses: actions/checkout@v4
+      # ... samme login + setup-terraform som deploy-dev ...
+      - run: |
+          terraform init \
+            -backend-config=backend.hcl \
+            -backend-config="key=modul8/test/network.tfstate"
+      - run: terraform apply -auto-approve -var-file="test.tfvars"
+
+  deploy-prod:
+    needs: deploy-test
+    runs-on: ubuntu-latest
+    environment: prod        # required reviewers – manuell port før prod
+    steps:
+      - uses: actions/checkout@v4
+      # ... samme login + setup-terraform ...
+      - run: |
+          terraform init \
+            -backend-config=backend.hcl \
+            -backend-config="key=modul8/prod/network.tfstate"
+      - run: terraform apply -auto-approve -var-file="prod.tfvars"
