@@ -23,7 +23,7 @@ concurrency:
 
 defaults:
   run:
-    working-directory: modul7    # her bor Terraform-rota
+    working-directory: modul07-oving    # her bor Terraform-rota
 
 env:
   ARM_USE_OIDC:        "true"
