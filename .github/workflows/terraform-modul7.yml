@@ -27,9 +27,9 @@ defaults:
 
 env:
   ARM_USE_OIDC:        "true"
-  ARM_CLIENT_ID:       ${{ secrets.AZURE_CLIENT_ID }}
-  ARM_TENANT_ID:       ${{ secrets.AZURE_TENANT_ID }}
-  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_CLIENT_ID:       ${{ vars.AZURE_CLIENT_ID }}
+  ARM_TENANT_ID:       ${{ vars.AZURE_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
 jobs:
   build:                       # kvalitetsporten – kjører alltid
@@ -50,9 +50,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: Azure/login@v3.1.0
         with:
-          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id:       ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id:       ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       - uses: hashicorp/setup-terraform@v3
       - run: |
           terraform init \
@@ -60,21 +60,37 @@ jobs:
             -backend-config="key=modul7/dev/network.tfstate"
       - run: terraform plan -var-file="dev.tfvars" -no-color
 
-  apply:                       # ved merge til main
+  apply-dev:                   # ved merge til main
     needs: build
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: dev           # GitHub Environment – kan kreve godkjenning
+    environment: dev
     steps:
       - uses: actions/checkout@v4
       - uses: Azure/login@v3.1.0
         with:
-          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id:       ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id:       ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       - uses: hashicorp/setup-terraform@v3
       - run: |
           terraform init \
             -backend-config=backend.hcl \
             -backend-config="key=modul7/dev/network.tfstate"
       - run: terraform apply -auto-approve -var-file="dev.tfvars"
+
+  apply-prod:                  # etter dev – venter på godkjenning
+    needs: apply-dev
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: prod          # required reviewers settes på dette miljøet
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Azure/login@v3.1.0
+        with:
+          client-id:       ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id:       ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init -backend-config=backend.hcl -backend-config="key=modul7/prod/network.tfstate"
+      - run: terraform apply -auto-approve -var-file="prod.tfvars"
