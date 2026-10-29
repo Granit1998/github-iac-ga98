@@ -19,7 +19,7 @@ permissions:
 
 concurrency:
   group: terraform-modul7-${{ github.ref }}
-  cancel-in-progress: false      # en avbrutt apply etterlater en hengende state-lås
+  cancel-in-progress: false                    # en avbrutt apply etterlater en hengende state-lås
 
 defaults:
   run:
