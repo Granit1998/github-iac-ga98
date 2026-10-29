@@ -1,4 +1,4 @@
-name: terraform-modul7
+name: terraform-cd
 
 on:
   pull_request:
