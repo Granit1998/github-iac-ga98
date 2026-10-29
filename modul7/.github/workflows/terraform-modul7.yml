@@ -18,6 +18,7 @@ permissions:
   pull-requests: write   # for å poste plan tilbake i PR-en
 
 concurrency:
+
   group: terraform-modul7-${{ github.ref }}
   cancel-in-progress: false                    # en avbrutt apply etterlater en hengende state-lås
 
@@ -95,3 +96,4 @@ jobs:
       - run: terraform init -backend-config=backend.hcl -backend-config="key=modul7/prod/network.tfstate"
       - run: terraform apply -auto-approve -var-file="prod.tfvars"
  
+      - run: terraform apply -auto-approve -var-file="prod.tfvars"
