@@ -60,11 +60,11 @@ jobs:
             -backend-config="key=modul7/dev/network.tfstate"
       - run: terraform plan -var-file="dev.tfvars" -no-color
 
-  apply:                       # ved merge til main
-    needs: build
+  apply-prod:
+    needs: apply-dev
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: dev           # GitHub Environment – kan kreve godkjenning
+    environment: prod
     steps:
       - uses: actions/checkout@v4
       - uses: Azure/login@v3.1.0
@@ -76,5 +76,5 @@ jobs:
       - run: |
           terraform init \
             -backend-config=backend.hcl \
-            -backend-config="key=modul7/dev/network.tfstate"
-      - run: terraform apply -auto-approve -var-file="dev.tfvars"
+            -backend-config="key=modul7/prod/network.tfstate"
+      - run: terraform apply -auto-approve -var-file="prod.tfvars"
