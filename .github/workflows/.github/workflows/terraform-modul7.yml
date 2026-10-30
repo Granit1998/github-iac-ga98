@@ -37,11 +37,11 @@ jobs:
       - run: terraform init -backend=false
       - run: terraform validate
 
-  plan:
+  plan:                        # på pull request – forhåndsvisning, ingen endring
     needs: build
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    environment: dev
+    environment: dev           # også her – ellers matcher ikke sub-claimet (modul 6)
     steps:
       - uses: actions/checkout@v4
       - uses: Azure/login@v3.1.0
@@ -56,11 +56,11 @@ jobs:
             -backend-config="key=modul7/dev/network.tfstate"
       - run: terraform plan -var-file="dev.tfvars" -no-color
 
-        apply-dev:
+  apply:                       # ved merge til main
     needs: build
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: dev
+    environment: dev           # GitHub Environment – kan kreve godkjenning
     steps:
       - uses: actions/checkout@v4
       - uses: Azure/login@v3.1.0

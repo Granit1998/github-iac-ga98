@@ -4,12 +4,13 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'modul07-oving/**'
+      - 'modul7**'
+      - 'modul7/**'
       - '.github/workflows/terraform-modul7.yml'
   push:
     branches: [main]
     paths:
-      - 'modul07-oving/**'
+      - 'modul7/**'
       - '.github/workflows/terraform-modul7.yml'
 
 permissions:
@@ -20,11 +21,17 @@ permissions:
 concurrency:
 
   group: terraform-modul7-${{ github.ref }}
-  cancel-in-progress: false      # en avbrutt apply etterlater en hengende state-lås
+  cancel-in-progress: false                    # en avbrutt apply etterlater en hengende state-lås
 
 defaults:
   run:
     working-directory: modul7    # her bor Terraform-rota
+  group: terraform-modul7-${{ github.ref }}
+  cancel-in-progress: false      # en avbrutt apply etterlater en hengende state-lås
+
+defaults:
+  run:
+    working-directory: modul7     # her bor Terraform-rota
 
 env:
   ARM_USE_OIDC:        "true"
@@ -34,12 +41,14 @@ env:
 
 jobs:
   build:                       # kvalitetsporten – kjører alltid
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
       - run: terraform fmt -check -recursive
       - run: terraform init -backend=false     # ingen state, ingen Azure-pålogging
+      - run: terraform init -backend=false
       - run: terraform validate
 
   plan:                        # på pull request – forhåndsvisning, ingen endring
